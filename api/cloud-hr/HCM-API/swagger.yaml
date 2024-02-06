@@ -1,0 +1,1603 @@
+openapi: 3.0.0
+info:
+  x-api-id: '72c001dc-7324-447c-b78b-a69dc69f5c0a'
+  x-audience: company-internal
+  version: 1.0.8 
+  title: HCM API
+  termsOfService: 'https://example.com/terms/'
+  contact:
+    name: Advanced
+    email: api@oneadvanced.com
+    url: 'https://oneadvanced.com/contact-us'
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  description: |
+    Personnel record API definition.
+tags:
+  - name: Absences
+    description: Operations to retrieve and update Employee Absences.
+  - name: Employees
+    description: Operations to retrieve and update Employees.
+  - name: Jobs
+    description: Operations to retrieve updates on the status of asynchronous requests.
+  - name: Leave Requests
+    description: Operations to retrieve and update Employee Leave Requests.
+  - name: MyWorkplace Applets
+    description: Operations provided for MyWorkplace access.
+  - name: Team member photo
+    description: Operations to retrieve a team member photo.
+paths:
+  '/employees':
+    get:
+      operationId: listEmployees
+      summary: List employees
+      description: Returns a list of current employees. The employees are returned sorted by start date, with the most recent employees appearing first. <p> It is possible to return past employees or new starter using the query parameters below.<p> Each entry in the array is a separate employee and will contain links to get further details of that employee. If no employees match that query are available, the response will be an empty array but you will still receive a 200 HTTP code. <p> Applicants are not returned as part of this collection.
+      tags:
+        - Employees
+      security: 
+        - oAuth2:
+          - employees:read
+      parameters:
+        - name: employeeCode
+          description: A filter on the list based on the employee code or staff number
+          required: false
+          in: query
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 50
+          example: 'AS1'
+        - name: startDateFrom
+          description: A filter on the list based on the employee's earliest start date in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date
+          example: '2012-03-29'
+        - name: startDateTo
+          description: A filter on the list based on the employee's latest start date in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date
+          example: '2019-01-20'
+        - name: leaveDateFrom
+          description: A filter on the list based on the employee's earliest leave date in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date
+          example: '2012-03-29'
+        - name: leaveDateTo
+          description: A filter on the list based on the employee's latest leave date in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string   
+            format: date
+          example: '2019-01-20'
+        - name: updatedSince
+          description: A filter on the list to return only employees that have been updated since the date and time provided in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date-time
+          example: '2020-06-20T19:20:00Z'
+        - name: inductionCompleted
+          description: A filter on the list based on the employee’s induction status
+          required: false
+          in: query
+          schema:
+            type: boolean
+            default: false
+          example: true
+        - name: limit
+          in: query
+          required: false
+          description: 'Limit the number of results returned'
+          schema:
+            default: 20
+            minimum: 1
+            maximum: 200
+            type: integer
+          example: 15
+        - name: offset
+          in: query
+          required: false
+          description: 'Return results starting at this record number'
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+            maximum: 50000000
+          example: 20          
+      responses:
+        '200':
+          description: 'List of employees matching the criteria'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeesList'
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '406':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem406Response'
+  '/employees/{employeeId}':
+    get:
+      operationId: viewEmployeeDetails
+      summary: View an employee
+      description: Retrieves the details of a single employee. It requires the employees Id that can be found from the /employees collection or is returned after creating a new employee.
+      tags: 
+        - Employees
+      security: 
+        - oAuth2:
+          - employees:read
+      parameters: 
+        - name: employeeId
+          description: Unique identifier for the employee.
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2147483647
+          example: 12334
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDetails'
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '404':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem404Response'
+        '406':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem406Response'
+  "/workplaces/{workplaceRef}/team-member-photo/{employeeId}":
+    get:
+      summary: View a team member photo
+      description: |
+        Returns a base64 representation of a photo for the specified team member.
+      operationId: getTeamMemberPhoto
+      tags:
+        - Team member photo
+      parameters:
+        - $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/parameters/workplaceRefParam"
+        - name: employeeId
+          in: path
+          description: The employee ID of the required team member
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2147483647
+          example: 1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamMemberPhoto"
+        "400":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem400Response"
+        "401":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem401Response"
+        "403":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem403Response"
+        "404":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem404Response"    
+  "/workplaces/{workplaceRef}/summary/{summaryid}":
+    get:
+      summary: Get summary details
+      description: |
+        Returns a list of summary values for the specified applet
+      operationId: getSummaryDetails
+      tags:
+        - MyWorkplace Applets
+      parameters:
+        - $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/parameters/workplaceRefParam"
+        - name: summaryid
+          in: path
+          description: The ID of the required summary applet
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000000
+            example: 3
+          example: 3
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SummaryDetails"
+        "400":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem400Response"
+        "401":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem401Response"
+        "403":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem403Response"
+        "404":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem404Response"              
+  "/workplaces/{workplaceRef}/workflowinstance/{workflowid}":
+    get:
+      summary: Initialize a Workflow instance
+      description: |
+        Initialize a Advanced HR Workflow instance
+      operationId: getInstantiateWorkflowResult
+      tags:
+        - MyWorkplace Applets
+      parameters:
+        - $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/parameters/workplaceRefParam"
+        - name: workflowid
+          in: path
+          description: The ID of the Advanced HR workflow
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000000
+            example: 3
+          example: 3
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstantiateWorkflowResult"
+        "400":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem400Response"
+        "401":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem401Response"
+        "403":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem403Response"
+        "404":
+          $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem404Response"            
+  '/absences':
+    get:
+      operationId: listAbsences
+      summary: List absences
+      description: Returns a list of absences 
+      tags:
+        - Absences
+      security: 
+        - oAuth2:
+          - 'absences:read'
+      parameters: 
+        - name: employeeId
+          description: A filter to include one or more employee\'s absences. A maximum of 20 employee\'s absences can be requested. The absences are grouped by employee.
+          required: false
+          in: query
+          schema:
+            type: array
+            minItems: 0
+            maxItems: 20
+            items:
+              type: integer
+              minimum: 0
+              maximum: 2147483647
+          style: form
+          explode: false
+          examples:
+            oneId:
+              value: [1234]
+            multipleIds:
+              value: [1234,13,12334]
+        - name: classification
+          description: A filter on the list based on the absence classification. H - Holiday, S - Sick, D - Day
+          required: false
+          in: query
+          schema:
+            type: array
+            minItems: 0
+            maxItems: 3
+            items:
+              type: string
+              enum: 
+              - H
+              - S
+              - D
+            minLength: 0
+            maxLength: 7
+          style: form
+          explode: false
+          examples:
+            oneCode:
+              value: [H]
+            multipleCodes:
+              value: [H, S]
+        - name: startDateFrom
+          description: A filter on the list based on the absence start date in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date
+            example: '2019-01-20'
+          example: '2019-01-20'
+        - name: startDateTo
+          description: A filter on the list based on the absence finish date in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date
+            example: '2019-01-20'
+          example: '2019-01-20'
+        - name: updatedSince
+          description: A filter on the list to return only absences that have been updated since the date and time provided in ISO-8601.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date-time
+            example: '2020-06-20T19:20:00Z'
+          example: '2020-06-20T19:20:00Z'
+        - name: limit
+          in: query
+          required: false
+          description: 'Limit the number of results returned'
+          schema:
+            default: 20
+            minimum: 1
+            maximum: 200
+            type: integer
+          example: 15
+        - name: offset
+          in: query
+          required: false
+          description: 'Return results starting at this record number'
+          schema:
+            default: 1
+            type: integer
+            minimum: 1
+            maximum: 50000000
+          example: 20               
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbsencesList'
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+    post:
+      operationId: createAbsences
+      summary: Create new absences
+      description: Create new absences for specified employees. This is an asynchronous endpoint that returns a JobID. Use GET /absence-job-status/{job-id} to poll for updates on the status of this request.
+      tags:
+        - Absences
+      security: 
+        - oAuth2:
+          - 'absences:write'
+      requestBody:
+        required: true
+        description: Pass the details for creating absences.
+        content:
+          application/json:
+            schema:
+                 $ref: '#/components/schemas/AbsencesCreateList'
+      responses:
+        '202':
+          description: Accepted for update
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+                example: https://virtserver.swaggerhub.com/AdvancedComputerSoft/hcm-api/1.0.7/job-status/6b31c4fa-e56e-4be2-bd76-8e0eadfebbc7
+                description: 'URL to check upon the status of this request'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStartedResponse'
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '415':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem415Response'
+  '/absence-job-status/{jobId}':
+    get:
+      summary: Get status updates
+      description: Get status of specified job id
+      tags:
+        - Jobs
+      operationId: statusUpdateJobGet
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Id of the job queried
+          schema:
+            type: string
+            format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+      security:
+        - oAuth2:
+          - 'jobs:read'          
+      responses:
+        '200':
+          description: 'Check the status of the job'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralJobStatus'
+              example:
+                jobId: 'd4f9a4cd-fbba-4fd5-9fc3-bcc5491b28fc'
+                status: 'COMPLETED'
+                recordsWithError: 1
+                recordsUpdated: 2
+                messages:
+                  - absenceId: null
+                    requestId: 1
+                    messageType: Error
+                    message: "Failed to create absence for Employee record ID: 1144, startDate: '2021-08-01', endDate: '2021-08-04'. Reason: Start and end dates overlap with another absence"
+                  - absenceId: 1593
+                    requestId: 2
+                    messageType: Created
+                    message: ""
+                  - absenceId: 1594
+                    requestId: 3
+                    messageType: Created
+                    message: ""
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem403Response'
+        '404':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/responses/Problem404Response'            
+  '/absences/{absenceId}':
+    get:
+      operationId: viewAbsence
+      summary: View details of an absence
+      description: Retrieves the details of a absence. It requires the absence code that can we found from the /absences collection or is returned after creating a new absence.
+      tags: 
+        - Absences
+      security: 
+        - oAuth2:
+          - 'absences:read'
+      parameters: 
+        - name: absenceId
+          description: Unique absence Id
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2147483647
+          example: 1232345235
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbsenceDetails'
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '404':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem404Response'
+    patch:
+      operationId: updateAbsence
+      summary: Updates absence parameters
+      description: Updates the details of a absence. It requires the absence code that can we found from the /absences collection or is returned after creating a new absence.
+      tags: 
+        - Absences
+      security: 
+        - oAuth2:
+          - 'absences:write'
+      requestBody:
+        required: true
+        description: Pass the details with updated values to update absence.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbsenceUpdate'
+      parameters: 
+        - name: absenceId
+          description: Unique absence Id
+          required: true
+          in: path
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2147483647
+          example: 1232345235
+      responses:
+        '204':
+          description: No Content
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '404':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem404Response'
+    delete:
+      operationId: deleteAbsence
+      summary: Delete absence
+      description: Delete an absence
+      tags:
+        - Absences
+      security: 
+        - oAuth2:
+          - 'absences:write'
+      parameters:
+        - in: path
+          name: absenceId
+          description: Unique absence code
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 2147483647
+          allowEmptyValue: false
+          example: 123455
+      responses:
+        '204':
+          description: No content
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '404':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem404Response'     
+  '/workplaces/{workplaceRef}/leave-request':
+    post:
+      operationId: createLeaveRequest
+      summary: Create a new Leave Request
+      description: Create new leave requests for specified employee.
+      tags:
+        - Leave Requests
+      security: 
+        - oAuth2:
+          - 'leave:write'
+      parameters:
+        - $ref: "https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.6.0#/components/parameters/workplaceRefParam"
+      requestBody:
+        required: true
+        description: Pass the necessary details for creating a leave request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeaveRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                required:
+                  - "durationDays"
+                type: object
+                properties:
+                  durationDays:
+                    type: number
+                    description: The calculated duration of this leave request, in days
+                    example: 2.5
+        '400':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem400Response'
+        '401':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem401Response'
+        '403':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem403Response'
+        '404':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem404Response'
+        '415':
+          $ref: 'https://api.swaggerhub.com/domains/AdvancedComputerSoft/advanced-common-oas3/1.4.0#/components/responses/Problem415Response'
+components:
+  schemas:
+    Employee:
+      type: object
+      additionalProperties: false
+      properties:
+        employeeCode:
+          description: The employee's unique code.
+          type: string
+        employeeId:
+          description: The employee's Id.
+          type: integer
+        forenames:
+          description: First and any middle names.
+          type: string
+        surname:
+          description: Surname or family name.
+          type: string
+        niNumber:
+          description: National Insurance Number, without spaces.
+          type: string
+        emailWork:
+          description: Company email address.
+          type: string
+        jobRole:
+          description: Current job role.
+          type: string
+        department:
+          description: The employee’s department.
+          type: string
+        division:
+          description: Which company division the employee belongs to.
+          type: string
+        location:
+          description: Contracted work location.
+          type: string
+          example: Berkshire Office
+        inductionDate:
+          description: Date on which employee’s induction was completed, in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+        startDate:
+          description: Start date in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+        leaveDate:
+          description: Leave date in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+        leavingReason:
+          description: The employee’s leaving reason.
+          type: string
+        isCurrentEmployeeForPayroll:
+          description: Is current employee for Payroll?
+          type: boolean
+        payrollCompany:
+          description: The employee’s Payroll schedule.
+          type: string
+        lastUpdated:
+          description: Time and date that the employee was last updated at in ISO-8601.
+          format: date-time
+          nullable: true
+          type: string
+    EmployeeDetails:
+      required:
+        - "employeeId"
+        - "surname"
+        - "forenames"
+      type: object
+      additionalProperties: false
+      properties:
+        employeeCode:
+          description: The employee's unique code.
+          type: string
+          example: '00002131'
+          readOnly: true
+        employeeId:
+          description: The employee's Id.
+          type: integer
+          example: 1234
+        title:
+          description: Title.
+          type: string
+          maxLength: 10
+          example: Mr
+        forenames:
+          description: First and any middle names.
+          type: string
+          maxLength: 35
+          example: Jonathon David
+        surname:
+          description: Surname or family name.
+          type: string
+          maxLength: 35
+          example: Smith
+          minLength: 1
+        knownAs:
+          description: The name the employee prefers to be known as.
+          type: string
+          maxLength: 35
+          example: Jon
+        previousName:
+          description: Previous name, e.g. maiden name.
+          type: string
+          maxLength: 35
+          example: Jones
+        maritalStatus:
+          description: Marital Status.
+          type: string
+          maxLength: 40
+          example: Married
+        gender:
+          description: Gender.
+          type: string
+          maxLength: 30
+          example: Male
+        dateOfBirth:
+          description: Date of birth, in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+          maxLength: 70
+          example: '1998-09-02'
+        age:
+          description: Age.
+          type: integer
+          maximum: 130
+          example: 24
+          readOnly: true
+        placeOfBirth:
+          description: Place of birth.
+          type: string
+          maxLength: 20
+          example: Berkshire
+        nationality:
+          description: Nationality.
+          type: string
+          maxLength: 40
+          example: 'English'
+        niNumber:
+          description: National Insurance Number, without spaces.
+          type: string
+          maxLength: 9
+          minLength: 9
+          example: 'AA999999B'
+          pattern: ^[a-zA-Z]{2}[0-9]{6}[a-zA-Z]{1}$
+        jobRole:
+          description: Current job role.
+          type: string
+          maxLength: 70
+          example: Business Analyst 
+        department:
+          description: The employee’s department.
+          type: string
+          maxLength: 40
+          example: I.T.
+        division:
+          description: Which company division the employee belongs to.
+          type: string
+          maxLength: 70
+          example: IT
+        location:
+          description: Contracted work location.
+          type: string
+          example: 'Berkshire Office'
+        startDate:
+          description: Start date in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+          maxLength: 70
+          example: '2019-09-24'
+        leaveDate:
+          description: Leave date in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+          example: '2020-01-24'
+        leavingReason:
+          description: The employee’s leaving reason.
+          type: string          
+        picture:
+          description: Current profile picture.
+          type: string
+          example: base64 string
+        addressLine1:
+          type: string
+          example: Windsor castle
+        addressLine2:
+          type: string
+          example: Riding Court Road
+        addressLine3:
+          type: string
+          example: Slough
+        addressLine4:
+          type: string
+          example:  Slough
+        addressLine5:
+          type: string
+          example: Berkshire
+        postcode:
+          type: string
+          example: SL3 9LL
+        country:
+          type: string
+          example: UK
+        livedSince:
+          type: string
+          nullable: true
+          example: '2019-09-24T12:57:13Z'
+        emailWork:
+          description: Company email address.
+          type: string
+          example: j.jones@company.com
+        emailHome:
+          description: Home email.
+          type: string
+          example: j.jones@email.com
+        telephoneWork:
+          description: Work telephone number.
+          type: string
+          example: '0208 000 000'
+        telephoneHome:
+          description: Home telephone number.
+          type: string
+          example: 01222 222222
+        mobileWork:
+          description: Work mobile number.
+          type: string
+          example: 07777 777778
+        mobilePersonal:
+          description: Personal mobile number.
+          type: string
+          example: 07877 777777
+        isCurrentEmployeeForPayroll:
+          description: Is current employee for Payroll?
+          type: boolean
+        payrollCompany:
+          description: The employee’s Payroll schedule.
+          type: string          
+        costCenter: 
+          description: The cost center with which the employee is associated.
+          type: string
+          maxLength: 15
+          example: COMP16437
+        standardHours:
+          description: Standard working hours.
+          type: number
+          example: 37.50
+        actualHours:
+          description: Actual working hours.
+          type: number
+          example: 37.50
+        contractType:
+          description: The employee’s contract type.
+          type: string
+          maxLength: 20
+          example: Permanent
+        contractEndDate:
+          description: Contract end date in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+          example: "2021-05-25"
+        fullPartTime:
+          description: Specifies whether the employee is a full time or part time worker.
+          type: string
+          maxLength: 15
+          example: Full Time
+        workingPattern:
+          description: The employee's working pattern.
+          type: string
+          example: 'MMTTWWTTFF'
+        leavingProcedureCompletedDate:
+          description: Date on which employee's leaving procedure completed. in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+          example: '2020-01-31'
+        leavingProcedureCompletedBy:
+          description: Leaving procedure completed by.
+          type: string
+          example: "John Doe"
+        inductionDate:
+          description: Date on which employee's induction was completed in ISO-8601.
+          type: string
+          nullable: true
+          format: date
+          example: "2019-09-21"
+        inductionCompleted:
+          description: Induction completed or not.
+          type: boolean
+          example: true
+        inductionWith:
+          description: Induction done by.
+          type: string
+          example: "John Doe"
+        lastUpdated:
+          description: Time and date that the employee was last updated at in ISO-8601.
+          type: string
+          nullable: true
+          format: date-time
+          example: '2019-09-24T12:57:13Z'          
+    EmployeesList:
+      required:
+        - "data"
+        - "pagination"
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Employee'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              description: The number of results to skip
+              minimum: 0
+              default: 0
+              example: 5
+            limit:
+              type: integer
+              description: The number of results to limit
+              example: 20
+              default: 3000
+              minimum: 0
+              maximum: 3000              
+            totalResultCount:
+              type: integer
+              description: Total number of results
+              example: 521
+      example:
+        data:
+        - employeeCode: AS1
+          employeeId: 12334
+          forenames: Jonathan
+          surname: 'Turner'
+          niNumber: QQ123456C
+          emailWork: j.hickson@company.com
+          jobRole: Business Analyst
+          department: I.T.
+          division: IT
+          location: Windsor castle
+          inductionDate: '2020-01-24'
+          startDate: '2020-01-24'
+          leaveDate: 
+          leavingReason: ''
+          isCurrentEmployeeForPayroll: true
+          payrollCompany: Monthly Payroll
+          lastUpdated: '2019-09-24T12:57:13Z'
+        - employeeCode: AS2
+          employeeId: 12454
+          forenames: Ric
+          surname: Evans
+          niNumber: QQ123456A
+          emailWork: r.evans@company.com
+          jobRole: Business Application Consultant
+          department: I.T.
+          division: PS
+          location: Ashford
+          inductionDate: '2015-05-08'
+          startDate: '2015-05-08'
+          leaveDate: 
+          leavingReason: ''
+          isCurrentEmployeeForPayroll: true
+          payrollCompany: Monthly Payroll
+          lastUpdated: '2019-09-24T12:57:13Z'
+        - employeeCode: AS3
+          employeeId: 123345
+          forenames: Gary
+          surname: Jones
+          niNumber: QQ123456D
+          emailWork: g.jones@company.com
+          jobRole: Director of Finance
+          department:  Accounts
+          division: Finance
+          location: London
+          inductionDate: '2000-01-27'
+          startDate: '2000-01-27'
+          leaveDate: '2020-12-05'
+          leavingReason: Retired
+          isCurrentEmployeeForPayroll: false
+          payrollCompany: Monthly Payroll
+          lastUpdated: '2019-09-24T12:57:13Z'
+        pagination:
+          offset: 0
+          limit: 10
+          totalResultCount: 100
+    Absence:
+      type: object
+      additionalProperties: false
+      properties:
+        absenceId:
+          description: The unique Id for this absence.
+          type: integer
+        employeeId:
+          description: The unique Id for the employee that the absence relates to.
+          type: integer
+        classification:
+          description: The classification code for the absence. H - Holiday, S - Sick, D - Day
+          type: string
+          enum: 
+            - H
+            - S
+            - D
+        type:
+          description: The type of absence
+          type: string
+        reason:
+          description: The reason for the absence
+          type: string
+        startDate:
+          description: Start date in ISO8601.
+          type: string
+          format: date
+        startSession:
+          description: The session that the absence started on
+          type: string
+          enum:
+            - AM
+            - PM
+        endDate:
+          description: End date in ISO8601.
+          type: string
+          format: date
+        endSession:
+          description: The session that the absence finished on
+          type: string
+          enum:
+            - AM
+            - PM
+        unit:
+          description: The unit of time used to measure the absence
+          type: string
+          enum:
+            - Days
+            - Hours
+        durationDays:
+          description: The number of days absent
+          type: number
+        durationHours:
+          description: The number of hours absent (if applicable)
+          type: number
+    AbsencesList:
+      required:
+        - "data"
+        - "pagination"
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+             $ref: '#/components/schemas/Absence'
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+              description: The number of results to skip
+              minimum: 0
+              default: 0
+              example: 5
+            limit:
+              type: integer
+              description: The number of results to limit
+              example: 20
+              default: 3000
+              minimum: 0
+              maximum: 3000              
+            totalResultCount:
+              type: integer
+              description: Total number of results
+              example: 521
+      example:
+        data:
+        - absenceId: 438989
+          employeeId: 1
+          classification: H
+          type: 'Holiday'
+          reason: 'Vacation'
+          startDate: '2020-01-24'
+          startSession: AM
+          endDate: '2020-01-30'
+          endSession: PM
+          unit: Days
+          durationDays: 5  
+          durationHours: 0
+        - absenceId: 438221
+          employeeId: 2
+          classification: S
+          type: 'Sick'
+          reason: 'Back pain'
+          startDate: '2020-01-03'
+          startSession: AM
+          endDate: '2020-01-15'
+          endSession: AM
+          unit: Days
+          durationDays: 8.5
+          durationHours: 0
+        pagination:
+          offset: 0
+          limit: 10
+          totalResultCount: 100          
+    AbsencesCreateList:
+      type: array
+      required:
+        - "employeeId"
+      items:
+         $ref: '#/components/schemas/AbsenceCreate'
+    AbsenceCreate:
+      type: object
+      additionalProperties: false
+      required:
+        - employeeId
+        - requestId
+        - type
+        - reason
+        - startDate
+        - startSession
+      properties:
+        employeeId:
+          description: The unique id for the employee that the absence relates to.
+          type: integer
+          example: 12345
+        requestId:
+          description: A unique id for this request that can be used to identify the record in the response data
+          type: integer
+          example: 1
+        classification:
+          description: The classification code for the absence
+          type: string
+          enum: 
+            - H
+            - S
+            - D
+          example: S
+        type:
+          description: The type of absence
+          type: string
+          example: Sick
+        reason:
+          description: The reason for the absence
+          type: string
+          example: Back pain
+        startDate:
+          description: Start date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-24'
+        startSession:
+          description: The session that the absence started on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: AM
+        endDate:
+          description: End date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-24'
+        endSession:
+          description: The session that the absence finished on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: PM
+        unit:
+          description: The unit of time used to measure the absence
+          type: string
+          enum:
+            - Days
+            - Hours
+          example: Days
+        durationDays:
+          description: The duration in days (calculated if left as 0)
+          type: number
+          example: 0
+        durationHours:
+          description: The duration in hours (if applicable)
+          type: number
+          example: 0
+        childNumber:
+          description: Child birth number. Only used for Maternity or Paternity absences
+          type: number
+          example: 0
+        continuous:
+          description: This absence is a continuation of a previous absence
+          type: boolean
+          example: false
+        notes:
+          description: Any notes associated with this absence
+          type: string
+          example: ''
+    AbsenceUpdate:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - reason
+        - startDate
+        - startSession
+      properties:
+        classification:
+          description: The classification code for the absence
+          type: string
+          enum: 
+            - H
+            - S
+            - D
+          example: S
+        type:
+          description: The type of absence
+          type: string
+          example: Sick
+        reason:
+          description: The reason for the absence
+          type: string
+          example: Back pain
+        startDate:
+          description: Start date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-24'
+        startSession:
+          description: The session that the absence started on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: AM
+        endDate:
+          description: End date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-24'
+        endSession:
+          description: The session that the absence finished on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: PM
+        unit:
+          description: The unit of time used to measure the absence
+          type: string
+          enum:
+            - Days
+            - Hours
+          example: Days
+        durationDays:
+          description: The duration in days (calculated if left as 0)
+          type: number
+          example: 0
+        durationHours:
+          description: The duration in hours (if applicable)
+          type: number
+          example: 0
+        childNumber:
+          description: Child birth number. Only used for Maternity or Paternity absences
+          type: number
+          example: 0
+        continuous:
+          description: This absence is a continuation of a previous absence
+          type: boolean
+          example: false
+        notes:
+          description: Any notes associated with this absence
+          type: string
+          example: ''
+    AbsenceDetails:
+      required:
+        - "absenceId"
+        - "employeeId"
+      type: object
+      additionalProperties: false
+      properties:
+        absenceId:
+          description: The unique id for this absence
+          type: integer
+          example: 1231342
+        employeeId:
+          description: The unique id for the employee that the absence relates to
+          type: integer
+          example: 2
+        classification:
+          description: The classification code for the absence
+          type: string
+          enum: 
+            - H
+            - S
+            - D
+          example: S
+        type:
+          description: The type of absence
+          type: string
+          example: Sick
+        reason:
+          description: The reason for the absence
+          type: string
+          example: Back pain
+        startDate:
+          description: Start date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-03'
+        startSession:
+          description: The session that the absence started on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: AM
+        endDate:
+          description: End date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-04'
+        endSession:
+          description: The session that the absence finished on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: PM
+        unit:
+          description: The unit of time used to measure the absence
+          type: string
+          enum:
+            - Days
+            - Hours
+          example: Days
+        durationDays:
+          description: The number of days absent
+          type: number
+          example: 2
+        durationHours:
+          description: The number of hours absent
+          type: number
+          example: 3
+        childNumber:
+          description: Child birth number. Only used for Maternity or Paternity absences
+          type: number
+          example: 0
+        continuous:
+          description: This absence is a continuation of a previous absence
+          type: boolean
+          example: true   
+        notes:
+          description: Any notes associated with this absence
+          type: string
+          example: ''
+    TeamMemberPhoto:
+      type: object
+      required:
+        - employeeId
+      properties:
+        employeeId:
+          description: Employee''s Id
+          type: string
+          example: '10001'
+        photo:
+          description: Photo of the employee
+          type: string
+          format: base64
+          example: "data:image/jpeg;base64,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"  
+    SummaryDetails:
+      required:
+        - "id"
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          description: Name of the applet summary.
+          type: string
+        id:
+          description: Id of the applet summary.
+          type: string
+        title:
+          description: Title of the applet summary.
+          type: string
+        subtitle:
+          description: Subtitle of the applet summary.
+          type: string
+        buttons:
+          description: Applet summary buttons.
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryDetailsButtons'
+        values:
+          description: Company email address.
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryDetailsDatabaseValues'
+    SummaryDetailsButtons:
+      required:
+        - "label"
+        - "url"
+      type: object
+      additionalProperties: false
+      properties:
+        label:
+          description: Label of the applet summary button.
+          type: string
+        url:
+          description: Url of the applet summary button.
+          type: string
+        default:
+          description: Default value of the applet summary button.
+          type: boolean
+        linkType:
+          description: Link-type of the applet summary button.
+          type: string
+    SummaryDetailsDatabaseValues:
+      required:
+        - "label"
+      type: object
+      additionalProperties: false
+      properties:
+        label:
+          description: Label value.
+          type: string
+        value:
+          description: Data value
+          type: string
+    InstantiateWorkflowResult:
+      required:
+        - "instanceId"
+      type: object
+      additionalProperties: false
+      properties:
+        instanceId:
+          description: The instance of the instantiated workflow
+          type: integer
+        formElements:
+          description: The form elements for the instantiated workflow
+          type: array
+          items: 
+            type: string
+        message:
+          description: Any error messages encountered while instantiating the workflow
+          type: string
+        validUser:
+          description: A flag to show whether the user associated with the workflow is valid
+          type: boolean
+        userHasEmail:
+          description: A flag to show whether the user associated with the workflow has an associated email address
+          type: boolean
+        errorMessage:
+          description: Any error messages encountered while authenticating the user
+          type: string
+    JobStartedResponse:
+      type: object
+      required: ['jobId']
+      properties:
+        jobId:
+          type: string
+          format: uuid
+          example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+    GeneralJobStatus:
+      required:
+        - "jobId"
+      type: object
+      description: The generic status of a job
+      properties:
+        jobId:
+          type: string
+          format: uuid
+        requestId:
+          type: integer
+        status:
+          type: string
+          enum:
+            - WAITING
+            - STARTED
+            - COMPLETED
+        recordsWithError:
+          type: integer
+        recordsWithWarnings:
+          type: integer
+        recordsUpdated:
+          type: integer
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeneralJobStatusMessage'
+    GeneralJobStatusMessage:
+      description: 'A general job status processing message'
+      type: object
+      properties:
+        absenceId:
+          type: integer
+          nullable: true
+        requestId:
+          type: integer
+        msgType:
+          type: string
+          enum: ['Warning','Error','Information']
+        message:
+          type: string
+      example:
+        lineNo: 1
+        msgType: Warning
+        message: My warning message    
+    LeaveRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - startDate
+        - startSession
+        - endDate
+        - endSession
+      properties:
+        startDate:
+          description: Start date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-24'
+        startSession:
+          description: The session that the leave request is to start on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: AM
+        endDate:
+          description: End date in ISO8601.
+          type: string
+          format: date
+          example: '2020-01-24'
+        endSession:
+          description: The session that the leave request is to finish on
+          type: string
+          enum:
+            - AM
+            - PM
+          example: PM
+        durationHours:
+          description: The duration in hours (if applicable)
+          type: number
+          example: 0
+        notes:
+          description: Any employee notes regarding this leave request
+          type: string
+          example: Childcare
+  securitySchemes:
+    oAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://example.com/oauth/authorize'
+          tokenUrl: 'https://example.com/oauth/token'
+          scopes:
+            employees:read: allows creating and modifying employees
+            employees:write: allows listing and reading employees         
+            absences:read: allows listing and reading absences
+            absences:write: allows creating and modifying absences
+            jobs-read: allows reading of asynchronous job statuses
+        clientCredentials: 
+          tokenUrl: 'https://example.com/oauth/token'
+          scopes: 
+            employees:read: allows creating and modifying employees
+            employees:write: allows listing and reading employees
+            absences:read: allows listing and reading absences
+            absences:write: allows creating and modifying absences
+            jobs-read: allows reading of asynchronous job statuses
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/AdvancedComputerSoft/hcm-api/1.0.8
+  - description: Advanced HR Production
+    url: https://api.cloudhr.oneadvanced.com/api/v1
