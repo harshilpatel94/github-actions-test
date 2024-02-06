@@ -47,7 +47,7 @@ paths:
             type: string
             minLength: 0
             maxLength: 50
-          example: 'AS1'
+          example: 'AS12'
         - name: startDateFrom
           description: A filter on the list based on the employee's earliest start date in ISO-8601.
           required: false
